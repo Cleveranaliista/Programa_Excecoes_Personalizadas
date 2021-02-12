@@ -4,15 +4,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import model.exceptions.DomainException;
+
 public class Reservation {
 
 	private Integer roomNumber;
 	private Date checkIn;
 	private Date checkOut;
-	
+	private Date now = new Date();
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) {
+	public Reservation(Integer roomNumber, Date checkIn, Date checkOut) throws DomainException {
+		if (checkIn.before(now) || checkOut.before(now)) {
+			throw new DomainException("Error in reservation: Reservation dates for update must be future");
+		}
 		this.roomNumber = roomNumber;
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
@@ -38,17 +43,17 @@ public class Reservation {
 		long diff = checkOut.getTime() - checkIn.getTime();
 		return TimeUnit.DAYS.convert(diff,TimeUnit.MILLISECONDS);
 	}
-	public String upadateDates(Date checkIn, Date checkOut) {
-		Date now = new Date();
+	public void upadateDates(Date checkIn, Date checkOut) throws DomainException{
+		
 		if (checkIn.before(now) || checkOut.before(now)) {
-			return "Error in reservation: Reservation dates for update must be future";
+			throw new DomainException("Error in reservation: Reservation dates for update must be future");
 		}
 		if (!checkOut.after(checkIn)) {
-			return "Error in reservation: Check-out date must be after check-in date ";
+			throw new DomainException( "Error in reservation: Check-out date must be after check-in date ");
 		}
 		this.checkIn = checkIn;
 		this.checkOut = checkOut;
-		return null;  
+		
 	}
 	@Override
 	public String toString() {
@@ -62,15 +67,6 @@ public class Reservation {
 			+","
 			+ duration()
 			+ " nights";
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	
 	}
 }
